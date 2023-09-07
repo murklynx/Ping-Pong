@@ -3,7 +3,7 @@
 #include "../Collision.h"
 #include "../Game.h"
 
-TwoPlayerState::TwoPlayerState() : paddleLeftScore(0), paddleRightScore(0), gameOver(false) {
+TwoPlayerState::TwoPlayerState() : paddleLeftScore(0), paddleRightScore(0), paddleLeftRoundScore(0), paddleRightRoundScore(0), gameOver(false), roundCount(1) {
     auto& window = Game::getInstance().getWindow();
     float xPos = window.getSize().x / 2.0f;
     float yPos = window.getSize().y / 2.0f;
@@ -16,13 +16,19 @@ TwoPlayerState::TwoPlayerState() : paddleLeftScore(0), paddleRightScore(0), game
 
     paddleLeftScoreText.setFont(Game::getInstance().getFont());
     paddleLeftScoreText.setString(std::to_string(paddleLeftScore));
-    paddleLeftScoreText.setCharacterSize(32);
-    paddleLeftScoreText.setPosition(75.0f, 30.0f);
+    paddleLeftScoreText.setCharacterSize(60);
+    paddleLeftScoreText.setPosition(150.0f, 30.0f);
 
     paddleRightScoreText.setFont(Game::getInstance().getFont());
     paddleRightScoreText.setString(std::to_string(paddleRightScore));
-    paddleRightScoreText.setCharacterSize(32);
-    paddleRightScoreText.setPosition(window.getSize().x - 75.0f, 30.0f);
+    paddleRightScoreText.setCharacterSize(60);
+    paddleRightScoreText.setPosition(window.getSize().x - 155.0f, 30.0f);
+
+
+    roundCountText.setFont(Game::getInstance().getFont());
+    roundCountText.setString("Round " + std::to_string(roundCount));
+    roundCountText.setCharacterSize(32);
+    roundCountText.setPosition(window.getSize().x - 630.0f, 5.0f);
 
     gameOverText.setFont(Game::getInstance().getFont());
     gameOverText.setCharacterSize(32);
@@ -91,13 +97,30 @@ void TwoPlayerState::update(const sf::Time& deltaTime) {
             paddleLeftScoreText.setString(std::to_string(++paddleLeftScore));
         }
 
-        if (paddleLeftScore == 5 || paddleRightScore == 5) {
+        if (paddleLeftScore == 5) {
+            paddleLeftScoreText.setString(std::to_string(paddleLeftScore = 0));
+            paddleRightScoreText.setString(std::to_string(paddleRightScore = 0));
+            ++paddleLeftRoundScore;
+            roundCountText.setString(std::string{"Round "} + std::to_string(++roundCount));
+        }
+        else if (paddleRightScore == 5) {
+            paddleLeftScoreText.setString(std::to_string(paddleLeftScore = 0));
+            paddleRightScoreText.setString(std::to_string(paddleRightScore = 0));
+            ++paddleRightRoundScore;
+            roundCountText.setString(std::string{"Round "} + std::to_string(++roundCount));
+        }
+        if (roundCount > 5) {
             gameOver = true;
-            gameOverText.setString(std::string{ "            Player " } + (paddleLeftScore == 5 ? "one" : "two") + " has won!\nPress spacebar for the main menu");
+            gameOverText.setString(std::string{ "            Player " } + (paddleLeftRoundScore > paddleRightRoundScore ? "two" : "one") + " has won!\nPress spacebar for the main menu");
         }
     }
     else {
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Enter)) {
+            auto twoPlayerState = std::make_unique<TwoPlayerState>();
+            Game::getInstance().popState();
+            Game::getInstance().pushState(std::move(twoPlayerState));
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
             auto mainMenuState = std::make_unique<MainMenuState>();
             Game::getInstance().clearAllStates();
             Game::getInstance().pushState(std::move(mainMenuState));
@@ -111,6 +134,7 @@ void TwoPlayerState::draw(sf::RenderTarget& target, sf::RenderStates states) con
         target.draw(paddleRight, states);
         target.draw(paddleLeftScoreText, states);
         target.draw(paddleRightScoreText, states);
+        target.draw(roundCountText, states);
         target.draw(net, states);
         target.draw(ball, states);
     }
