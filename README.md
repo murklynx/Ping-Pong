@@ -6,9 +6,11 @@
 
 A Main Menu screen consists of:
 * Play
-* Quit
-SpaceBar and Mouse cursor used for input. 
+* Quit.
 
+SpaceBar and Mouse cursor used for input. 
+Player 1 controls are UP and DOWN arrow keys.
+Player 2 controls are W and S keys.
 ### Dependencies
 
 * VS 2019.
