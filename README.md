@@ -6,7 +6,8 @@
 
 A Main Menu screen consists of:
 * Play
-* Quit 
+* Quit
+SpaceBar and Mouse cursor used for input. 
 
 ### Dependencies
 
