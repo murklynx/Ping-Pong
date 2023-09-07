@@ -1,24 +1,14 @@
-#include <SFML/Graphics.hpp>
+#include "Game.h"
+#include "States/MainMenuState.h"
 
-int main()
-{
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
+int main() {
+    auto& game = Game::getInstance();
+    auto clock = sf::Clock();
 
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        window.clear();
-        window.draw(shape);
-        window.display();
+    game.pushState(std::make_unique<MainMenuState>());
+    while (game.isRunning()) {
+        game.handleEvent();
+        game.update(clock.restart());
+        game.draw();
     }
-
-    return 0;
 }
